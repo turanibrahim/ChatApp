@@ -1,7 +1,9 @@
 <template>
   <v-app>
     <template v-if="user.token != null">
-      <ChatScreen/>
+      <ChatScreen
+        :user="user"
+      />
     </template>
     <template v-else>
       <template v-if="isLogin">
@@ -23,6 +25,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import ChatScreen from './views/ChatScreen.vue'
 import Login from './views/Auth/Login.vue'
 import Signup from './views/Auth/Signup.vue'
@@ -61,9 +64,30 @@ export default {
     },
     fetchCookie: function(){
       if(this.$cookies.isKey('user')){
-        this.user = this.$cookies.get('user');
+        const cookie = this.$cookies.get('user');
+        if(this.verifyCookie(cookie.token)) return this.user = cookie;
+
+        this.$cookies.remove('user');
       } 
-    }
+    },
+    verifyCookie: async function(token){
+      let verified = null
+
+      await axios.post('http://localhost:81/auth/verifyToken', {
+        data:{
+          token
+        }
+      })
+      .then((response) => {
+        if(response.data?.verified == true) verified = true;
+      })
+      .catch((error) => {
+        this.loadingSignUpButton = false;
+        console.log(error);
+      });
+
+      return verified;
+    },
   }
 };
 </script>
