@@ -109,6 +109,7 @@
                         block
                         rounded
                         @click="login"
+                        :loading="loginButtonLoading"
                       >Giriş Yap</v-btn>
                     </v-col>
                   </v-row>
@@ -135,13 +136,15 @@ export default {
       usernameError: null,
       passwordError: null,
       authError: null,
+      loginButtonLoading: false,
     }
   },
   methods:{
     changeScreen: function(){
       this.$emit('updateIsLogin', false)
     },
-    login: function(){
+    login: async function(){
+      
       if(this.username === null || this.password === null){
         if(this.username === null) this.usernameError = "Kullanıcı adı boş bırakılamaz"
         if(this.password === null) this.passwordError = "Şifre boş bırakılamaz"
@@ -157,7 +160,9 @@ export default {
       this.passwordError = null;
       this.usernameError = null;
 
-      axios.post('http://localhost:81/auth/login', {
+      this.loginButtonLoading = true;
+
+      await axios.post('http://localhost:81/auth/login', {
         data:{
           username: this.username,
           password: this.password
@@ -180,6 +185,8 @@ export default {
         this.authError = "Bir sorun oluştu lütfen sonra tekrar deneyin"
         this.loadingSignUpButton = false;
       });
+      
+      this.loginButtonLoading = false;
     },
   },
 }
