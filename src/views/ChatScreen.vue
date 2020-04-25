@@ -32,13 +32,29 @@
                       dark
                       color="blue-grey darken-4"
                     >
-                      <v-spacer></v-spacer>
                       <v-btn
                         color="white"
                         icon
+                        v-show="whichLeftBar > 0"
+                        @click="setLeftBar('0')"
                       >
-                        <v-icon>mdi-message</v-icon>
+                        <v-icon>mdi-arrow-left-thick</v-icon>
                       </v-btn>
+                      <v-spacer></v-spacer>
+                      <v-tooltip bottom>
+                        <template v-slot:activator="{ on }">
+                          <v-btn
+                            color="white"
+                            icon
+                            v-show="whichLeftBar != '1'"
+                            @click="setLeftBar('1')"
+                            v-on="on"
+                          >
+                            <v-icon>mdi-message</v-icon>
+                          </v-btn>
+                        </template>
+                        <span>Kullanıcı Listesi</span>
+                      </v-tooltip>
                     </v-toolbar>
                   </v-col>
                   <v-col 
@@ -47,31 +63,23 @@
                     align-self="stretch"
                     style="background-color:#ECEFF1;overflow-y:auto"
                   >         
-                    <v-list-item 
-                      two-line 
-                      link
-                      avatar
-                      v-for="n in 10"
-                      :key="1+n"
-                      @click="scrollToEnd"
-                    >
-                      <v-list-item-avatar>
-                        <v-img src="https://cdn.vuetifyjs.com/images/lists/1.jpg"></v-img>
-                      </v-list-item-avatar>
-                      <v-list-item-content >
-                        <v-list-item-title>
-                          <v-badge
-                            color="green"
-                            content="6"
-                          >
-                            İbrahim Turan
-                          </v-badge>
-                        </v-list-item-title>
-                        <v-list-item-subtitle>
-                          <span>Meşazını aldım İbrahim gardaşım...</span>
-                        </v-list-item-subtitle>
-                      </v-list-item-content>
-                    </v-list-item>
+                    <template v-if="whichLeftBar == '0'">
+                      <ChatScreenList
+                        v-for="conversation in conversationList"
+                        :key="conversation._id"
+                        :name="conversation.receiverUsername"
+                        @click.native="setChatArea(conversation.receiverId, conversation.receiverUsername)"
+                      />
+                    </template>
+                    <template v-if="whichLeftBar == '1'">
+                      <ChatScreenOnlineUsers
+                        v-for="user in users"
+                        :key="user._id"
+                        :username="user.username"
+                        :isOnline="user.isOnline"
+                        @click.native="setChatArea(user._id, user.username)"
+                      />
+                    </template>
                   </v-col>
                 </v-row>
               </v-col>
@@ -91,7 +99,7 @@
                         dark
                         color="blue-grey darken-4"
                       >
-                        <span class="title">İbrahim Turan</span>
+                        <span class="title">{{ receiverUsername }}</span>
                         <v-spacer></v-spacer>
                       </v-toolbar>
                     </v-col>
@@ -119,7 +127,7 @@
                             <!-- Başkasından mejaz geliyorsa burası -->
                             <v-col 
                               cols="10"
-                              v-if="message.sendById != 2"
+                              v-if="message.senderUsername != user.username"
                               :key="message.id" 
                               class="ma-0 py-2"
                               align-self="start"
@@ -135,7 +143,7 @@
                                   <v-card
                                     color="blue-grey lighten-3"
                                   >
-                                    <v-card-title class="subtitle-2 py-0 black--text">{{ message.sendByName }}</v-card-title>
+                                    <v-card-title class="subtitle-2 py-0 black--text">{{ message.senderUsername }}</v-card-title>
                                     <v-card-text class="py-0 black--text">
                                       {{ message.message }} 
                                     </v-card-text>
@@ -145,7 +153,7 @@
                                         no-gutters
                                       >
                                         <v-col cols="auto">
-                                          <span class="overline py-0">{{ message.sendAt }}</span>
+                                          <span class="overline py-0">{{ message.time }}</span>
                                         </v-col>
                                       </v-row>
                                     </v-card-actions>
@@ -231,56 +239,148 @@
           </v-card>
         </v-col>
       </v-row>
+      <v-snackbar
+        top
+        color="success"
+        :timeout=snackbarTimeout
+        v-model="showSnackBar"
+      >
+        <v-row
+          justify="center"
+          align="center"
+        >
+          <v-col cols="auto">{{ newOnlineUser }} şuan Online!</v-col>
+        </v-row>
+      </v-snackbar>
     </v-container>
 </template>
 
 <script>
 import io from 'socket.io-client';
+import ChatScreenList from '../components/ChatScreenList';
+import ChatScreenOnlineUsers from '../components/ChatScreenUsers';
 
 export default {
-  components:{
+  props:{
+    user: Object,
   },
-  mounted:function(){
-    this.socket.on('messages', (data) => {
-      this.messages = data;
-      this.$nextTick().then( ()=> {
-        this.scrollToEnd()
-      });
+  components:{
+    ChatScreenList,
+    ChatScreenOnlineUsers
+  },
+  mounted: async function(){
+    const vm = this;
+    await this.socket.emit('SET_ONLINE', this.user);
+    await this.socket.on('USER_CONNECTED', function(data){
+      console.log(data);
+      vm.newOnlineUser = data;
+      vm.showSnackBar = true;
     });
-    this.socket.on('MESSAGE', (data) => {
-      this.messages.push(data);
-      this.$nextTick().then( ()=> {
-        this.scrollToEnd()
-      });
+    this.socket.on('GET_MESSAGE', async function(data){
+      vm.allMessages.push(data);
+      await vm.filterMessages();
+      vm.scrollToEnd();
     });
-    this.scrollToEnd();
+    await this.fetchMessages();
+    this.getOnlineUsers();
   },
   data: () => ({
-    socket : io('localhost:80'),
+    socket : io('localhost:81'),
     message: null,
     dialog: false,
     drawer: true,
-    messages:[],
+    receiverId: null,
+    receiverUsername: null,
+    users: [],
+    whichLeftBar: "0",
+    messages: [],
+    allMessages: [],
+    newOnlineUser: '',
+    conversationList:[],
+    showSnackBar: false,
+    snackbarTimeout: 6000
   }),
   methods:{
     scrollToEnd: function() {    	
       var chatArea = this.$el.querySelector("#chatArea");
       chatArea.scrollTop = chatArea.scrollHeight;
     },
-    sendMessage() {
+    fetchMessages: function(){
+      const vm = this;
+      this.socket.emit('FETCH_MESSAGES', this.user._id);
+      this.socket.on('ALL_MESSAGES', function(data){
+        vm.allMessages = data;
+        vm.createConversationList();
+      });
+    },
+    sendMessage: async function(){
+      const vm = this;
       if(this.message != null){
-        this.socket.emit('SEND_MESSAGE', {
-          conversationId: 1,
-          sendById: 2,
-          sendByName: "İbrahim Turan",
-          sendAt: Date.now(),
-          message: this.message,
-          seen: true
+        this.socket.emit('SEND_MESSAGE', vm.message , vm.user._id, vm.receiverId);
+        this.socket.once('MESSAGE_CALLBACK', (data) =>{
+          const message = {
+            _id: data,
+            message: vm.message,
+            date: Date.now(),
+            sender: vm.user._id,
+            receiver: vm.receiverId,
+            receiverUsername: vm.receiverUsername,
+            senderUsername: vm.user.username,
+          };
+          vm.allMessages.push(message);
+          vm.messages.push(message);
+          return this.message = null;
         });
-        this.message = null;
       }
+    },
+    getOnlineUsers: async function(){
+      const vm = this;
+      await this.socket.on('USERS', (data) => {
+        vm.users = data;
+        let index = vm.users.findIndex( value => { return value._id == this.user._id });
+        vm.users.splice(index, 1);
+      });
+    },
+    setLeftBar: function(value){
+      this.whichLeftBar = value;
+    },
+    setChatArea: async function(userId, username){
+
+        this.receiverId = userId;
+        this.receiverUsername = username;
+        await this.filterMessages();
+        await this.scrollToEnd();
+    },
+    filterMessages: async function(){
+      if(this.receiverId != null && this.receiverUsername != null){
+        this.messages = await this.allMessages.filter(value => {return (value.sender == this.user._id && value.receiver == this.receiverId) || ( value.receiver == this.user._id && value.sender == this.receiverId) })
+        await this.scrollToEnd();
+      }
+    },
+    createConversationList: function(){
+      this.allMessages.forEach( value => {
+        if(value.sender == this.user._id){
+          if(!this.conversationList.some( conv => { return conv.receiverId == value.receiver})){
+            this.conversationList.push({
+              receiverId: value.receiver,
+              receiverUsername: value.receiverUsername
+            });
+          }
+        }else{
+          if(!this.conversationList.some( conv => { return conv.receiverId == value.sender})){
+            this.conversationList.push({
+              receiverId: value.sender,
+              receiverUsername: value.senderUsername
+            });
+          }
+        }
+      })
     }
   },
+  computed: {
+    
+    
+  }
 
 }
 </script>
