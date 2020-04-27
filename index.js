@@ -20,7 +20,7 @@ server.listen(81);
 // WARNING: app.listen(80) will NOT work here!
 
 //MAIN ROUTE FOR FRONTEND
-app.use('/', express.static('dist'))
+app.use('/', express.static(path.join(__dirname, 'client/dist')));
 
 //USER ROUTES
 app.use('/auth/', authRoute);
