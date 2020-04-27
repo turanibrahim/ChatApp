@@ -73,7 +73,7 @@ export default {
     verifyCookie: async function(token){
       let verified = null
 
-      await axios.post('http://localhost:81/auth/verifyToken', {
+      await axios.post(`${process.env.VUE_APP_SOCKET_ADDRESS}/auth/verifyToken`, {
         data:{
           token
         }

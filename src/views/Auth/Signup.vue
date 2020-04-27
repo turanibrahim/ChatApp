@@ -85,8 +85,7 @@
                       <span class="px-0 mx-0">Hesabın var mı? </span>
                       <a
                         @click="changeScreen"
-                        color="primary"
-                        
+                        color="primary"   
                       >
                         Giriş yap.
                       </a>
@@ -104,7 +103,9 @@
                         block
                         rounded
                         @click="signUp"
+                        @keyup.enter.native="signUp"
                         :loading="loadingSignUpButton"
+                        :disabled="!avaliableUsername"
                       >Kayıt Ol</v-btn>
                     </v-col>
                   </v-row>
@@ -147,6 +148,7 @@ export default {
       usernameError: null,
       usernameErrorMessage: null,
       loadingSignUpButton: false,
+      avaliableUsername: false,
     }
   },
   methods:{
@@ -172,35 +174,38 @@ export default {
       this.passwordConfirmError = null;
       this.loadingSignUpButton = true;
 
-      axios.post('http://localhost:81/auth/signUp', {
-        data:{
-          username: this.username,
-          password: this.password
-        }
-      })
-      .then((response) => {
-        const credentials = {
-          token: response.data.token,
-          _id: response.data.user._id,
-          username: response.data.user.username,
-        };
-        this.$emit('updateUserCredentials', credentials);
-      })
-      .catch((error) => {
-        this.loadingSignUpButton = false;
-        console.log(error);
-      });
+      if(this.avaliableUsername){
+        axios.post(`${process.env.VUE_APP_SOCKET_ADDRESS}/auth/signUp`, {
+          data:{
+            username: this.username,
+            password: this.password
+          }
+        })
+        .then((response) => {
+          const credentials = {
+            token: response.data.token,
+            _id: response.data.user._id,
+            username: response.data.user.username,
+          };
+          this.$emit('updateUserCredentials', credentials);
+        })
+        .catch((error) => {
+          this.loadingSignUpButton = false;
+          console.log(error);
+        });
+      }
     },
     checkUsername: function(){
       if(this.username?.length > 6){
         this.usernameError = null;
         this.usernameErrorMessage = null;
-        axios.post('http://localhost:81/auth/checkUsername', {
+        axios.post(`${process.env.VUE_APP_SOCKET_ADDRESS}/auth/checkUsername`, {
           username: this.username
         })
         .then((response) => {
           if(response.data.isValid === true){
             this.usernameError = false;
+            this.avaliableUsername = true;
           }else{
             this.usernameError = true;
             this.usernameErrorMessage = "Kullanıcı adı kullanılabilir değil!"

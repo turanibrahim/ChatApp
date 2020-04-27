@@ -109,6 +109,7 @@
                         block
                         rounded
                         @click="login"
+                        @keyup.enter="logim"
                         :loading="loginButtonLoading"
                       >Giriş Yap</v-btn>
                     </v-col>
@@ -162,7 +163,7 @@ export default {
 
       this.loginButtonLoading = true;
 
-      await axios.post('http://localhost:81/auth/login', {
+      await axios.post(`${process.env.VUE_APP_SOCKET_ADDRESS}/auth/login`, {
         data:{
           username: this.username,
           password: this.password
