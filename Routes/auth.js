@@ -34,8 +34,8 @@ router.post('/signUp', (req, res) => {
                 res.send({
                     token: token,
                     user: {
+                        _id: newUser._id,
                         username: newUser.username,
-                        _id: newUser._id
                     },
                 });
             });          
