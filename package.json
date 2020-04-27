@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "deneme": "cd client/ && npm install && npm run build",
+    "serve": "cd client/ && yarn serve",
     "start": "nodemon index.js",
+    "dev": "",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "İbrahim Turan",
@@ -20,6 +23,7 @@
     "mongoose": "^5.9.9",
     "nodemon": "^2.0.3",
     "npm": "^6.14.4",
+    "path": "^0.12.7",
     "socket.io": "^2.3.0"
   }
 }

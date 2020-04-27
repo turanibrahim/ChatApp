@@ -1,9 +1,10 @@
 const express = require('express');
+const path = require('path');
+const serveStatic = require('serve-static');
 const app = express();
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const authRoute = require('./Routes/auth');
-var path = require('path');
 
 //Model Schemas
 const User = require('./Models/UserModel');
@@ -13,17 +14,20 @@ const Room = require('./Models/RoomModel');
 //DotENV for key security
 require('dotenv').config()
 
+
 //Middleware
+app.use(serveStatic(`${__dirname}/client/dist`));
 app.use(express.json());
 
 const port = process.env.PORT  || 81
 server.listen(port, function(){
   console.log(`server started ${port}`);
 });
-// WARNING: app.listen(80) will NOT work here!
 
 //MAIN ROUTE FOR FRONTEND
-app.use('/', express.static(path.join(__dirname, 'client/dist')));
+app.get("*", (req, res) => {
+	res.sendFile(path.join(__dirname, "client/dist/index.html"));
+});
 
 //USER ROUTES
 app.use('/auth/', authRoute);

@@ -146,7 +146,7 @@
                       flat
                       class="flex-column flex-nowrap aling-end chat-screen"
                       style="overflow-y:auto"
-                      height="80vh"
+                      height="82vh"
                       id="chatArea"
                     >
                       <v-row
