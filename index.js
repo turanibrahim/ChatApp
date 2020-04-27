@@ -1,9 +1,9 @@
 const express = require('express');
 const app = express();
-const cors = require('cors');
 const server = require('http').Server(app);
 const io = require('socket.io')(server);
 const authRoute = require('./Routes/auth');
+var path = require('path');
 
 //Model Schemas
 const User = require('./Models/UserModel');
@@ -16,7 +16,10 @@ require('dotenv').config()
 //Middleware
 app.use(express.json());
 
-server.listen(81);
+const port = process.env.PORT  || 81
+server.listen(port, function(){
+  console.log(`server started ${port}`);
+});
 // WARNING: app.listen(80) will NOT work here!
 
 //MAIN ROUTE FOR FRONTEND
