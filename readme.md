@@ -6,21 +6,7 @@ Project will base on Vue and Vuetify for front-end lib and Express server and So
 ```
 yarn install
 ```
-
-### Compiles and hot-reloads for development
-```
-yarn serve
-```
-
 ### Compiles and minifies for production
 ```
-yarn build
+yarn start
 ```
-
-### Lints and fixes files
-```
-yarn lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
