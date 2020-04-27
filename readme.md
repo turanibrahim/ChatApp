@@ -13,7 +13,11 @@ yarn build
 cd .. (if you are in client)
 yarn install
 ```
-### Compiles and minifies for production
+### Start
 ```
 yarn start
+```
+### Look live
+```
+https://agprogramlamaodevi.herokuapp.com/
 ```
