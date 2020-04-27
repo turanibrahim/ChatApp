@@ -8,23 +8,24 @@ const authRoute = require('./Routes/auth');
 //Model Schemas
 const User = require('./Models/UserModel');
 const Message = require('./Models/MessageModel');
+const Room = require('./Models/RoomModel');
+
 //DotENV for key security
 require('dotenv').config()
 
 //Middleware
 app.use(express.json());
 
-app.use(cors({
-  origin: 'http://localhost:8081',
-  credentials: true
-}));
-
 server.listen(81);
 // WARNING: app.listen(80) will NOT work here!
+
+//MAIN ROUTE FOR FRONTEND
+app.use('/', express.static('dist'))
 
 //USER ROUTES
 app.use('/auth/', authRoute);
 
+//SOCKET CONNECTION
 io.on('connection', function(socket) {
   console.log('user connect:'+ socket.id);
 
@@ -44,8 +45,7 @@ io.on('connection', function(socket) {
     
   });
 
-  socket.on('SEND_MESSAGE',async function(message, sender, receiver) { 
-    
+  socket.on('SEND_MESSAGE',async function(message, sender, receiver){
     var senderInfo = null;
     var receiverInfo = null;
 
@@ -81,14 +81,92 @@ io.on('connection', function(socket) {
     }
   });
 
-  socket.on('FETCH_MESSAGES', async function(userId){
+  socket.on('FETCH_PRIVATE_MESSAGES', async function(userId){
     await Message.find({ $or:[ {'receiver':userId}, {'sender':userId} ]}, function(err, docs){
       if(err) return console.log(err)
 
       User.findById(userId, function(err, doc){
         if(err) console.log(err);
-        return io.to(doc.socketId).emit('ALL_MESSAGES', docs)
+        return io.to(doc.socketId).emit('PRIVATE_MESSAGES', docs)
       })
+    });
+  });
+  
+  socket.on('JOIN_ROOM', async function(roomId, userId, username){
+    await Room.findById(roomId, function(err, doc){
+      if(err) console.log(err)
+
+      if(!doc.members.some(value => { return value.memberId == userId})){
+        doc.members.push({
+          memberId: userId,
+          memberUsername: username
+        });
+      }
+
+      doc.save(function(err, savedDoc){
+        if(err) return console.log(err)
+        User.findById(userId, function(err,user){
+          if(err) console.log(err);
+          socket.join(roomId)
+          return io.to(user.socketId).emit('FETCH_ROOM',savedDoc);
+        })
+      });
+    });
+  });
+
+  socket.on('FETCH_ROOMS', async function(userId){
+    let rooms = []
+    await Room.find({
+     "members.memberId": { $nin: userId}
+    },
+    '_id name members'
+    , function(err, docs){
+      if(err) return console.log(err)
+      rooms = docs;
+    });
+
+    await Room.find({
+      members: {
+        $elemMatch: {
+          memberId: { $in: [userId] }
+        }
+      }
+    },
+    '_id name members messages'
+    , function(err, docs){
+      if(err) return console.log(err)
+      
+      docs.forEach( value => {
+        socket.join(value._id);
+      });
+
+      rooms = rooms.concat(docs);
+    });
+
+    User.findById(userId, function(err, user){
+      if(err) console.log(err)
+
+      return io.to(user.socketId).emit('ALL_ROOMS',rooms)
+    })
+  });
+
+  socket.on('SEND_ROOM_MESSAGE', function(message, room, sender, senderUsername, senderSocketId){
+    const newMessage = {
+      message,
+      sender,
+      senderUsername,
+      date: Date.now()
+    };
+
+    Room.findOneAndUpdate(
+    {_id: room}, 
+    {$push: {'messages': newMessage}}, 
+    {new: true}, 
+    (err, result) => {
+      if(err) return console.log(er)
+
+      socket.broadcast.to(room).emit('GET_ROOM_MESSAGE', result._id, result.messages[result.messages.length-1]);
+      return io.to(senderSocketId).emit('ROOM_MESSAGE_CALLBACK', result.messages[result.messages.length-1]._id);
     });
   });
 
