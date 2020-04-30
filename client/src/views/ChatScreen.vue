@@ -12,7 +12,7 @@
         class="fill-height px-0"
       >
         <v-card
-          height="95vh"
+          class="fill-height"
         >
           <v-row
             class="fill-height"
@@ -111,13 +111,14 @@
           <!-- Chat area start -->
             <v-col
               cols="8"
+              class="fill-height"
             >
               <v-card
                 class="fill-height"
                 v-if="(receiverId || roomId) != null"
               >
                 <v-row
-                  class="fill-height flex-column flex-nowrap"
+                  class="fill-height flex-column"
                   align="start"
                   no-gutters
                 >
@@ -140,13 +141,14 @@
                     cols="grow" 
                     class="py-0 px-0"
                     align-self="stretch"
+                    id="outerDiv"
                   >         
                     <v-card
                       tile
                       flat
-                      class="flex-column flex-nowrap aling-end chat-screen"
+                      class="flex-column aling-end fill-height"
                       style="overflow-y:auto"
-                      height="82vh"
+                      :max-height="chatAreaDivHeight"
                       id="chatArea"
                     >
                       <v-row
@@ -399,6 +401,7 @@ export default {
     },
     loadingDialog: true,
     loadingChat: false,
+    chatAreaDivHeight: null,
   }),
   created: async function(){
     const vm = this;
@@ -426,11 +429,13 @@ export default {
     setTimeout(function(){ 
       vm.loadingDialog = false;
     }, 2000);
+    this.calculateDivHeight();
   },
   updated: function(){
     if(this.receiverId || this.roomId){
       this.$nextTick(() => this.scrollToEnd());
     }
+    this.calculateDivHeight();
   },
   methods:{
     scrollToEnd: function() {    	
@@ -583,6 +588,9 @@ export default {
       this.newRoomMessageAlert.name = this.rooms[roomIndex].name;
       this.newRoomMessageAlert.roomIndex = roomIndex;
       this.newRoomMessageAlert.show = true;
+    },
+    calculateDivHeight: function(){
+      this.chatAreaDivHeight = document.getElementById('outerDiv').clientHeight;
     }
   },
   computed: {
@@ -591,7 +599,7 @@ export default {
 </script>
 
 <style>
-.chat-screen{
+#chatArea{
   background-image:url('https://scontent.fesb4-2.fna.fbcdn.net/v/t1.0-9/18199550_1095758703903833_467087994582235397_n.jpg?_nc_cat=109&_nc_sid=dd9801&_nc_oc=AQlgOl7KeCwqThc3KPgK-JTqY7mGI0njAUR6WwBKy5SJhl0bRtt7bagFLwMTiiUxGp0&_nc_ht=scontent.fesb4-2.fna&oh=704e23286c498dec095b0e8ba01dc0b3&oe=5EBCBA69');
   background-repeat: no-repeat;
   background-position: center;
