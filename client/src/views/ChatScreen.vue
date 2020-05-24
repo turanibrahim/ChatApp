@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid class="fill-height  pa-0 ma-0" id="chat-screen">
+  <v-container fluid class="fill-height  pa-0 ma-0" id="chat-screen" style="height:100vh">
     <v-row 
       class="fill-height"
       justify="center"
