@@ -77,6 +77,7 @@
                   class="py-0 px-0"
                   align-self="stretch"
                   style="background-color:#ECEFF1;overflow-y:auto"
+                  max-height="87vh"
                 >         
                   <template v-if="whichLeftBar == '0'">
                     <ChatScreenList
