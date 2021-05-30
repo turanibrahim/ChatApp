@@ -1,6 +1,9 @@
 # ChatApp
-Chat Project for my Network Programming lesson. Main focus on this project is Socket/Web Socket programming.
-Project will base on Vue and Vuetify for front-end lib and Express server and Socket.io for backend socket server.
+Chat Project for my Network Programming lesson. Main focus on this project is Web Socket programming.
+Project based on Vue and Vuetify on the front-end side and Express server and Socket.io on the backend.
+
+## Live Demo
+http://agprogramlamaodevi.herokuapp.com/
 
 ## Project setup for client
 ```
