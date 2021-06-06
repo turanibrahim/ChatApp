@@ -8,6 +8,9 @@ export default new Vuex.Store({
     token: null,
   },
   mutations: {
+    setUserToken(state, payload) {
+      state.token = payload;
+    },
   },
   getters: {
     isAuthenticated(state) {
@@ -15,6 +18,20 @@ export default new Vuex.Store({
     },
   },
   actions: {
+    authenticateUser({ commit }, payload) {
+      if (payload.password === 'start') {
+        commit('setUserToken', payload.username);
+
+        return {
+          status: true,
+        };
+      }
+
+      return {
+        status: false,
+        errorMessage: 'This username or password is invalid',
+      };
+    },
   },
   modules: {
   },
