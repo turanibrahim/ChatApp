@@ -49,7 +49,7 @@ export default {
 </script>
 
 <template>
-  <v-container fluid class="fill-height grey lighten-4">
+  <v-container fluid class="fill-height login-page grey lighten-4">
     <v-row justify="center">
       <v-col cols="11">
         <v-container fluid>
@@ -61,7 +61,7 @@ export default {
             </v-col>
           </v-row>
 
-          <v-row class="pb-4">
+          <v-row>
             <v-col cols="auto">
               <h4 class="text-sm-h6">Login into ChatApp</h4>
               <p class="text-sm-caption">
@@ -125,3 +125,10 @@ export default {
     </v-row>
   </v-container>
 </template>
+
+<style lang="scss" scoped>
+.login-page {
+  max-height: 80vh;
+  overflow-y: auto;
+}
+</style>
