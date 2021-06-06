@@ -9,6 +9,8 @@
 ## Live Demo
 https://turanibrahim-chatapp.netlify.app/
 
+> Password should be `start` for correct login
+
 ## Project setup
 ```
 yarn install
