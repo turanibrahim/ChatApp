@@ -5,7 +5,7 @@ export default {
   name: 'Login',
   data() {
     return {
-      registerForm: {
+      loginForm: {
         username: '',
         password: '',
       },
@@ -36,7 +36,7 @@ export default {
         name: 'Home',
       };
 
-      const result = await this.authenticateUser(this.registerForm);
+      const result = await this.authenticateUser(this.loginForm);
 
       if (result.status) {
         await this.$router.push(path);
@@ -82,14 +82,14 @@ export default {
 
           <v-row>
             <v-col>
-              <v-text-field outlined v-model="registerForm.username" label="Username" />
+              <v-text-field outlined v-model="loginForm.username" label="Username" />
             </v-col>
           </v-row>
 
           <v-row no-gutters>
             <v-col>
               <v-text-field
-                v-model="registerForm.password"
+                v-model="loginForm.password"
                 :type="passwordFieldType"
                 :append-icon="passwordFieldIcon"
                 outlined
@@ -114,8 +114,8 @@ export default {
           </v-row>
 
           <v-row justify="end" no-gutters class="pb-3">
-            <v-col cols="3">
-              <v-btn block color="success" @click="handleLogin">
+            <v-col cols="auto">
+              <v-btn color="success" @click="handleLogin">
                 login
               </v-btn>
             </v-col>
@@ -128,7 +128,7 @@ export default {
 
 <style lang="scss" scoped>
 .login-page {
-  max-height: 80vh;
+  height: 80vh;
   overflow-y: auto;
 }
 </style>
