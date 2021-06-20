@@ -5,7 +5,7 @@ Vue.use(Vuex);
 
 export default new Vuex.Store({
   state: {
-    token: null,
+    token: '123',
   },
   mutations: {
     setUserToken(state, payload) {

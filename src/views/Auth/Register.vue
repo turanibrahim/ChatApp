@@ -23,7 +23,6 @@ export default {
       this.passwordFieldType = this.passwordFieldType === 'password' ? 'text' : 'password';
     },
     redirectToLoginPage() {
-      console.log('here')
       this.$router.push('Login');
     },
   },
