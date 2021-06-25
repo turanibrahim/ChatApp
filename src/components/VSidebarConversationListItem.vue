@@ -13,17 +13,23 @@ export default {
     message: { type: String, default: '' },
     messageCount: { type: String, default: '' },
     avatar: { type: String, default: '' },
-    active: {
-      type: Boolean,
-      default: false,
-    },
+    active: { type: Boolean, default: false },
+    selectable: { type: Boolean, default: false },
   },
   computed: {
     hasNewMessages() {
       return Number(this.messageCount);
     },
-    isNewMessage() {
+    isNewConversation() {
       return this.type === 'new';
+    },
+  },
+  methods: {
+    openConversation() {
+      this.$emit('click', {
+        conversationId: this.conversationId,
+        userId: this.userId,
+      });
     },
   },
 };
@@ -31,7 +37,7 @@ export default {
 
 <template>
   <div>
-    <v-list-item @click="$emit('click')">
+    <v-list-item @click="openConversation">
       <v-list-item-avatar>
         <v-img :src="avatar"></v-img>
       </v-list-item-avatar>
@@ -51,11 +57,11 @@ export default {
           </template>
         </v-list-item-title>
 
-        <v-list-item-subtitle v-if="!isNewMessage"> {{ message }} </v-list-item-subtitle>
+        <v-list-item-subtitle v-if="!isNewConversation"> {{ message }} </v-list-item-subtitle>
       </v-list-item-content>
 
-      <v-list-item-action>
-        <v-checkbox :input-value="active"></v-checkbox>
+      <v-list-item-action v-if="selectable">
+        <v-simple-checkbox :ripple="false" :value="active"></v-simple-checkbox>
       </v-list-item-action>
 
     </v-list-item>
@@ -63,7 +69,3 @@ export default {
     <v-divider/>
   </div>
 </template>
-
-<style scoped>
-
-</style>
