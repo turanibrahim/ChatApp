@@ -1,9 +1,10 @@
 <script>
-import VChatSidebar from '../components/VSidebarContainer';
+import VSidebarContainer from '../components/VSidebarContainer';
+import VConversationContainer from '../components/VConversationContainer';
 
 export default {
   name: 'Home',
-  components: { VChatSidebar },
+  components: { VSidebarContainer, VConversationContainer },
 };
 </script>
 
@@ -11,11 +12,12 @@ export default {
   <v-container fluid class="home-page fill-height pa-0">
     <v-row class="fill-height no-gutters">
       <v-col cols="auto">
-        <VChatSidebar />
+        <VSidebarContainer />
       </v-col>
-      <v-col cols="grow" class="red">
+
+      <v-col cols="grow" class="white">
         <v-row class="no-gutters">
-          dasdsa
+          <VConversationContainer />
         </v-row>
       </v-col>
     </v-row>
