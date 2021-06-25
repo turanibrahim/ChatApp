@@ -15,7 +15,7 @@ export default {
 <template>
   <v-row no-gutters class="v-conversation-sidebar flex-column flex-nowrap">
     <div class="v-conversation-sidebar__header flex flex-shrink-1">
-      <v-toolbar flat color="primary">
+      <v-toolbar flat dark color="primary">
         <v-avatar size="40">
           <img
             src="https://pbs.twimg.com/profile_images/1354745782394564616/iTIzzheJ_400x400.jpg"
@@ -56,9 +56,9 @@ export default {
         </v-menu>
       </v-toolbar>
 
-      <v-toolbar>
+      <v-toolbar color="secondary" flat>
         <v-text-field
-          dense rounded solo hide-details
+          dense solo hide-details
           placeholder="Search" label="search" append-icon="mdi-magnify"
         />
       </v-toolbar>
@@ -66,12 +66,13 @@ export default {
 
     <v-list class="v-conversation-sidebar__list flex">
       <VSidebarConversationListItem
-        active
         v-for="number in 21"
         :key="number"
         avatar="https://cdn.vuetifyjs.com/images/lists/1.jpg"
+        active
         fullName="İbrahim Turan"
         message="yok ya Mesaj mesaj mesaj mesaj Mesaj mesaj mesaj mesaj "
+        type="new"
       />
     </v-list>
   </v-row>
