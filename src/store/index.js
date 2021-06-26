@@ -1,38 +1,29 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
+import createPersistedState from 'vuex-persistedstate';
+import { FeathersVuex } from '../feathers/client';
+import auth from './store.auth';
 
 Vue.use(Vuex);
+Vue.use(FeathersVuex);
+
+const requireModule = require.context(
+  './services',
+  false,
+  /\.js$/,
+);
+const servicePlugins = requireModule
+  .keys()
+  .map((modulePath) => requireModule(modulePath).default);
 
 export default new Vuex.Store({
   state: {
-    token: '',
   },
   mutations: {
-    setUserToken(state, payload) {
-      state.token = payload;
-    },
   },
   getters: {
-    isAuthenticated(state) {
-      return !!state.token;
-    },
   },
   actions: {
-    authenticateUser({ commit }, payload) {
-      if (payload.password === 'start') {
-        commit('setUserToken', payload.username);
-
-        return {
-          status: true,
-        };
-      }
-
-      return {
-        status: false,
-        errorMessage: 'This username or password is invalid',
-      };
-    },
   },
-  modules: {
-  },
+  plugins: [...servicePlugins, auth, createPersistedState()],
 });
