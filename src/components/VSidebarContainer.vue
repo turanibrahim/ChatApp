@@ -10,7 +10,3 @@ export default {
 <template>
   <VConversationSidebar />
 </template>
-
-<style scoped>
-
-</style>
