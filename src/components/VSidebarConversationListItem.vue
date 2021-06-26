@@ -15,6 +15,7 @@ export default {
     avatar: { type: String, default: '' },
     active: { type: Boolean, default: false },
     selectable: { type: Boolean, default: false },
+    online: { type: Boolean, default: false },
   },
   computed: {
     hasNewMessages() {
@@ -22,6 +23,12 @@ export default {
     },
     isNewConversation() {
       return this.type === 'new';
+    },
+    status() {
+      return this.online ? 'Online' : 'Offline';
+    },
+    description() {
+      return this.isNewConversation ? this.status : this.message;
     },
   },
   methods: {
@@ -57,7 +64,7 @@ export default {
           </template>
         </v-list-item-title>
 
-        <v-list-item-subtitle v-if="!isNewConversation"> {{ message }} </v-list-item-subtitle>
+        <v-list-item-subtitle> {{ description }} </v-list-item-subtitle>
       </v-list-item-content>
 
       <v-list-item-action v-if="selectable">

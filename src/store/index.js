@@ -7,23 +7,28 @@ import auth from './store.auth';
 Vue.use(Vuex);
 Vue.use(FeathersVuex);
 
-const requireModule = require.context(
+const serviceFiles = require.context(
   './services',
   false,
   /\.js$/,
 );
-const servicePlugins = requireModule
+const moduleFiles = require.context(
+  './modules/',
+  true,
+  /index.js$/,
+);
+
+const servicePlugins = serviceFiles
   .keys()
-  .map((modulePath) => requireModule(modulePath).default);
+  .map((modulePath) => serviceFiles(modulePath).default);
+
+const modules = moduleFiles.keys().reduce((acc, modulePath) => {
+  const moduleName = modulePath.split('/')[1];
+
+  return ({ ...acc, [moduleName]: moduleFiles(modulePath).default });
+}, {});
 
 export default new Vuex.Store({
-  state: {
-  },
-  mutations: {
-  },
-  getters: {
-  },
-  actions: {
-  },
+  modules: { ...modules },
   plugins: [...servicePlugins, auth, createPersistedState()],
 });
