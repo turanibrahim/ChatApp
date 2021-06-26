@@ -6,7 +6,7 @@ export default {
   data() {
     return {
       loginForm: {
-        username: '',
+        email: '',
         password: '',
       },
       passwordFieldType: 'password',
@@ -20,7 +20,7 @@ export default {
   },
   methods: {
     ...mapActions({
-      authenticateUser: 'authenticateUser',
+      authenticateUser: 'auth/authenticate',
     }),
     changePasswordFieldType() {
       this.passwordFieldType = this.passwordFieldType === 'password' ? 'text' : 'password';
@@ -36,12 +36,15 @@ export default {
         name: 'Home',
       };
 
-      const result = await this.authenticateUser(this.loginForm);
+      try {
+        await this.authenticateUser({
+          ...this.loginForm,
+          strategy: 'local',
+        });
 
-      if (result.status) {
         await this.$router.push(path);
-      } else {
-        this.loginError = result.errorMessage;
+      } catch (response) {
+        this.loginError = 'E-mail or password is invalid.';
       }
     },
   },
@@ -82,7 +85,7 @@ export default {
 
           <v-row>
             <v-col>
-              <v-text-field outlined v-model="loginForm.username" label="Username" />
+              <v-text-field outlined v-model="loginForm.email" label="E-mail" />
             </v-col>
           </v-row>
 

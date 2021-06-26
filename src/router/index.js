@@ -38,7 +38,7 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const { isAuthenticated } = store.getters;
+  const isAuthenticated = store.getters['auth/isAuthenticated'];
   const paths = ['Login', 'Auth', 'Register'];
 
   if (!paths.includes(to.name) && !isAuthenticated) {

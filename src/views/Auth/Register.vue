@@ -1,4 +1,6 @@
 <script>
+import { mapActions } from 'vuex';
+
 export default {
   name: 'Register',
   data() {
@@ -6,9 +8,12 @@ export default {
       registerForm: {
         name: '',
         surname: '',
-        username: '',
+        email: '',
         password: '',
       },
+      isEmailValid: false,
+      isEmailFieldDirty: false,
+      isEmailValidating: false,
       registerError: null,
       passwordFieldType: 'password',
     };
@@ -19,11 +24,41 @@ export default {
     },
   },
   methods: {
+    ...mapActions({
+      register: 'users/create',
+      countUser: 'users/count',
+      authenticate: 'auth/authenticate',
+    }),
     changePasswordFieldType() {
       this.passwordFieldType = this.passwordFieldType === 'password' ? 'text' : 'password';
     },
     redirectToLoginPage() {
       this.$router.push('Login');
+    },
+    async handleRegister() {
+      try {
+        await this.register({
+          ...this.registerForm,
+        });
+
+        await this.authenticate({
+          email: this.registerForm.email,
+          password: this.registerForm.password,
+          strategy: 'local',
+        });
+
+        await this.$router.push({ name: 'Home' });
+      } catch (err) {
+        const { errors, message } = err;
+
+        if (Object.keys(errors).includes('email')) {
+          this.registerError = 'This email is already in use. Please try another one.';
+          this.registerForm.email = '';
+          this.$refs.emailField.focus();
+        } else {
+          this.registerError = message;
+        }
+      }
     },
   },
 };
@@ -63,19 +98,24 @@ export default {
 
           <v-row>
             <v-col>
-              <v-text-field outlined v-model="registerForm.name" label="Name" />
+              <v-text-field v-model="registerForm.name" outlined  label="Name" />
             </v-col>
           </v-row>
 
           <v-row no-gutters>
             <v-col>
-              <v-text-field outlined v-model="registerForm.surname" label="Surname" />
+              <v-text-field v-model="registerForm.surname" outlined label="Surname" />
             </v-col>
           </v-row>
 
           <v-row no-gutters>
             <v-col>
-              <v-text-field outlined v-model="registerForm.username" label="Username" />
+              <v-text-field
+                ref="emailField"
+                v-model="registerForm.email"
+                outlined
+                label="E-mail"
+              />
             </v-col>
           </v-row>
 
@@ -108,7 +148,7 @@ export default {
 
           <v-row justify="end" no-gutters class="pb-3">
             <v-col cols="auto">
-              <v-btn color="success">
+              <v-btn color="success" @click="handleRegister">
                 register
               </v-btn>
             </v-col>

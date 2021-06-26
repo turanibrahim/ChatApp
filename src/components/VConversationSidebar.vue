@@ -1,13 +1,25 @@
 <script>
+import { mapActions } from 'vuex';
 import VSidebarConversationListItem from './VSidebarConversationListItem';
 
 export default {
   name: 'VConversationSidebar',
   components: { VSidebarConversationListItem },
-  data() {
-    return {
-      test: '1',
-    };
+  methods: {
+    ...mapActions({
+      logout: 'auth/logout',
+    }),
+    async handleLogout() {
+      try {
+        await this.logout();
+
+        await this.$router.push({
+          name: 'Login',
+        });
+      } catch (error) {
+        // TODO: implement toast notifications and show error message
+      }
+    },
   },
 };
 </script>
@@ -49,7 +61,7 @@ export default {
               <v-list-item-title>Settings</v-list-item-title>
             </v-list-item>
 
-            <v-list-item>
+            <v-list-item @click="handleLogout">
               <v-list-item-title>Exit</v-list-item-title>
             </v-list-item>
           </v-list>
