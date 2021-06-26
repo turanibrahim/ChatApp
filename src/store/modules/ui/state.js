@@ -1,3 +1,4 @@
 export default () => ({
-  test: 123,
+  activeSidebar: 'conversationList',
+  activeConversation: null,
 });

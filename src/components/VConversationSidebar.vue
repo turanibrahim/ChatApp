@@ -8,7 +8,11 @@ export default {
   methods: {
     ...mapActions({
       logout: 'auth/logout',
+      setActiveSidebar: 'ui/setActiveSidebar',
     }),
+    openUserList() {
+      this.setActiveSidebar('userList');
+    },
     async handleLogout() {
       try {
         await this.logout();
@@ -37,7 +41,7 @@ export default {
 
         <v-spacer></v-spacer>
 
-        <v-btn icon>
+        <v-btn icon @click="openUserList">
           <v-icon>mdi-message</v-icon>
         </v-btn>
 
