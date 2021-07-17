@@ -5,6 +5,11 @@ Project based on Vue and Vuetify on the front-end side and Express server and So
 ## Live Demo
 http://agprogramlamaodevi.herokuapp.com/
 
+### V2 under development
+V2 under development. You can find it in `next` branch.
+
+https://turanibrahim-chatapp.netlify.app/
+
 ## Project setup for client
 ```
 cd client
